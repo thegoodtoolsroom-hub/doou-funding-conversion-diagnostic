@@ -1,0 +1,13 @@
+Variable code,Client-facing variable,Weight %,Metric count,Barrier grouping,Driver codes,Driver names
+R01,"Context, legal route & compliance",15,17,"B1 - Context, Eligibility & Compliance",D01; D02,Operating context and safety; Legal and receiving route
+R02,Funder intelligence & timing,6,9,B2 - Funding Intelligence & System Discipline,D03; D04,Funder market intelligence; Funder timing and access gates
+R03,Fundraising systems & go/no-go,4,9,B2 - Funding Intelligence & System Discipline,D05; D06,Pipeline tracking and ownership; Go/no-go discipline and repair loop
+R04,Funder fit & work design,7,11,"B3 - Fit, Competitiveness & Access",D07; D08,Mandate and eligibility fit; Work design and grant-size fit
+R05,"Competitive positioning, appeal & ROI",5,8,"B3 - Fit, Competitiveness & Access",D09; D10,Competitive positioning; Value case and ROI
+R06,Network position & access routes,5,9,"B3 - Fit, Competitiveness & Access",D11; D12,Access routes; Referrals and intermediaries
+R07,"Relationship, leadership & visibility",8,8,"B3 - Fit, Competitiveness & Access",D13; D14,Relationship management; Leadership visibility
+R08,Application quality & storytelling,4,6,"B4 - Proposal, Proof, Trust & Ethics",D15; D16,Application clarity and storytelling; Proposal coherence and budget/story alignment
+R09,"Coherence, evidence & social proof",6,9,"B4 - Proposal, Proof, Trust & Ethics",D17; D18,Evidence readiness; Social proof and references
+R10,Safeguarding & protected proof,5,8,"B4 - Proposal, Proof, Trust & Ethics",D19; D20,Safeguarding and ethics; Protected evidence protocol
+R11,"Due diligence, finance & risk",28,22,"B5 - Due Diligence, Operations & Financial Viability",D21; D22,Governance and controls; Finance and risk readiness
+R12,Grant management & sustainability,7,5,"B6 - Post-Award, Renewal & Adaptability",D23; D24,Grant management and renewal; Sustainability and adaptive capacity

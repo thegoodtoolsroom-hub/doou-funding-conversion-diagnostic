@@ -1,0 +1,30 @@
+DOO U Grant Funding Conversion Diagnostic — REPORT FRAMEWORK LOCKED LSS
+Version: REPORT_FRAMEWORK_LOCK_V1_2026_07_06
+
+Canonical source: attached client report template, page 10 framework table, with 12 report variables, 24 assessment areas/drivers, 121 scored metrics.
+This LSS supersedes earlier short-name framework grouping such as Context & Safety, Legal Readiness, Market Intelligence, etc.
+
+Structural checks
+- XML parse: PASS
+- Groups: 13
+- Top-level questions: 107
+- Duplicate top-level question codes: 0
+- Weight total: 1.00
+- Metric total: 121
+
+Locked group names
+- 00 Report setup
+- R01 Context, legal route & compliance
+- R02 Funder intelligence & timing
+- R03 Fundraising systems & go/no-go
+- R04 Funder fit & work design
+- R05 Competitive positioning, appeal & ROI
+- R06 Network position & access routes
+- R07 Relationship, leadership & visibility
+- R08 Application quality & storytelling
+- R09 Coherence, evidence & social proof
+- R10 Safeguarding & protected proof
+- R11 Due diligence, finance & risk
+- R12 Grant management & sustainability
+
+Critical implementation rule: Do not generate a client-facing report if fewer than 80% of scored metrics are decoded from the response export, and never generate from zero scored survey signals.

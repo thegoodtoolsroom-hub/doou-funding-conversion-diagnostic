@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+openpyxl
+python-docx
+docxtpl
+pydantic
+jinja2
+pytest

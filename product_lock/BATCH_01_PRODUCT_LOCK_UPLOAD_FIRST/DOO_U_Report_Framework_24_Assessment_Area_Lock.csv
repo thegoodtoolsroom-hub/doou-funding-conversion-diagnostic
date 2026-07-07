@@ -1,0 +1,25 @@
+Driver code,Assessment area / driver name,Variable code,Variable name,Variable weight %,Metric count,Barrier grouping,Primary stage relevance
+D01,Operating context and safety,R01,"Context, legal route & compliance",15,13,"B1 - Context, Eligibility & Compliance",6 Due Diligence
+D02,Legal and receiving route,R01,"Context, legal route & compliance",15,4,"B1 - Context, Eligibility & Compliance",2 Eligibility Checked; 6 Due Diligence
+D03,Funder market intelligence,R02,Funder intelligence & timing,6,5,B2 - Funding Intelligence & System Discipline,1 Opportunity Found
+D04,Funder timing and access gates,R02,Funder intelligence & timing,6,4,B2 - Funding Intelligence & System Discipline,1 Opportunity Found
+D05,Pipeline tracking and ownership,R03,Fundraising systems & go/no-go,4,2,B2 - Funding Intelligence & System Discipline,3 Application Submitted
+D06,Go/no-go discipline and repair loop,R03,Fundraising systems & go/no-go,4,7,B2 - Funding Intelligence & System Discipline,3 Application Submitted; 4 Proposal Review
+D07,Mandate and eligibility fit,R04,Funder fit & work design,7,9,"B3 - Fit, Competitiveness & Access",2 Eligibility Checked; 4 Proposal Review
+D08,Work design and grant-size fit,R04,Funder fit & work design,7,2,"B3 - Fit, Competitiveness & Access",2 Eligibility Checked; 4 Proposal Review
+D09,Competitive positioning,R05,"Competitive positioning, appeal & ROI",5,6,"B3 - Fit, Competitiveness & Access",4 Proposal Review
+D10,Value case and ROI,R05,"Competitive positioning, appeal & ROI",5,2,"B3 - Fit, Competitiveness & Access",4 Proposal Review
+D11,Access routes,R06,Network position & access routes,5,1,"B3 - Fit, Competitiveness & Access",1 Opportunity Found; 5 Conversation / Clarification
+D12,Referrals and intermediaries,R06,Network position & access routes,5,8,"B3 - Fit, Competitiveness & Access",1 Opportunity Found; 5 Conversation / Clarification
+D13,Relationship management,R07,"Relationship, leadership & visibility",8,7,"B3 - Fit, Competitiveness & Access",5 Conversation / Clarification; 8 Award / Renewal
+D14,Leadership visibility,R07,"Relationship, leadership & visibility",8,1,"B3 - Fit, Competitiveness & Access",5 Conversation / Clarification; 8 Award / Renewal
+D15,Application clarity and storytelling,R08,Application quality & storytelling,4,5,"B4 - Proposal, Proof, Trust & Ethics",3 Application Submitted; 4 Proposal Review
+D16,Proposal coherence and budget/story alignment,R08,Application quality & storytelling,4,1,"B4 - Proposal, Proof, Trust & Ethics",3 Application Submitted; 4 Proposal Review
+D17,Evidence readiness,R09,"Coherence, evidence & social proof",6,8,"B4 - Proposal, Proof, Trust & Ethics",4 Proposal Review; 6 Due Diligence
+D18,Social proof and references,R09,"Coherence, evidence & social proof",6,1,"B4 - Proposal, Proof, Trust & Ethics",6 Due Diligence
+D19,Safeguarding and ethics,R10,Safeguarding & protected proof,5,6,"B4 - Proposal, Proof, Trust & Ethics",6 Due Diligence
+D20,Protected evidence protocol,R10,Safeguarding & protected proof,5,2,"B4 - Proposal, Proof, Trust & Ethics",6 Due Diligence
+D21,Governance and controls,R11,"Due diligence, finance & risk",28,20,"B5 - Due Diligence, Operations & Financial Viability",6 Due Diligence; 7 Budget / Contract
+D22,Finance and risk readiness,R11,"Due diligence, finance & risk",28,2,"B5 - Due Diligence, Operations & Financial Viability",6 Due Diligence; 7 Budget / Contract
+D23,Grant management and renewal,R12,Grant management & sustainability,7,4,"B6 - Post-Award, Renewal & Adaptability",8 Award / Renewal
+D24,Sustainability and adaptive capacity,R12,Grant management & sustainability,7,1,"B6 - Post-Award, Renewal & Adaptability",7 Budget / Contract; 8 Award / Renewal
