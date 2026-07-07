@@ -1,0 +1,11 @@
+doou-funding-conversion-diagnostic/
+  app/
+  engine/
+  templates/
+  tests/
+  test_data/
+  product_lock/
+  docs/
+  outputs/
+  pyproject.toml
+  README.md
