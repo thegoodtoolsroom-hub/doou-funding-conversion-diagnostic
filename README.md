@@ -4,7 +4,15 @@ Deterministic report automation product for the DOO U Grant Funding Conversion D
 
 ## Current Build Stage
 
-Ticket 06R commercial output QA layer in progress.
+Tickets 01–06R are complete.
+
+The engine can now load product lock files, decode LimeSurvey responses, score responses, build report_data, generate batch DOCX/PDF files, and create sample outputs.
+
+Commercial QA correctly blocks the reports because DOCX section injection and Verdana/font verification are not complete yet.
+
+The next required ticket is Ticket 06S: Real Word Template Section Injection.
+
+Ticket 07 web app must not start yet.
 
 The locked source-of-truth folders are:
 
