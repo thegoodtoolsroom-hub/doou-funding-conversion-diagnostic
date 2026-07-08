@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 from docx import Document
 
+from engine.commercial_qa import render_batch_quality_report
 from engine.limesurvey_decoder import DecodedResponse
 from engine.report_data_builder import ReportDataBuilderError
 from engine.scoring_engine import ScoredOrganisation
@@ -71,6 +72,7 @@ def generate_batch_outputs(
 
     _write_batch_index(target_root, generated)
     _write_batch_quality_report(target_root, generated)
+    render_batch_quality_report(target_root)
     return generated
 
 
