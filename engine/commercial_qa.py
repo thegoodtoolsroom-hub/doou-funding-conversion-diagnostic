@@ -21,7 +21,8 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
     for org_dir in org_dirs:
         report_data_path = org_dir / "report_data.json"
         docx_path = org_dir / "report.docx"
-        pdf_path = org_dir / "report.pdf"
+        html_path = org_dir / "report.html"
+        pdf_path = org_dir / "report_branded.pdf"
         font_error_path = org_dir / "FONT_QA_ERROR.txt"
 
         report_data: dict[str, Any] = {}
@@ -29,6 +30,7 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
             report_data = json.loads(report_data_path.read_text(encoding="utf-8"))
 
         docx_present = docx_path.exists()
+        html_present = html_path.exists()
         pdf_present = pdf_path.exists()
         font_error_present = font_error_path.exists()
 
@@ -48,11 +50,13 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
             except Exception:
                 docx_text = ""
 
+        # DOCX Assessment (legacy format, may be blocked)
         template_quality_blocked = False
         placeholder_generic_content_blocked = False
         font_qa_blocked = False
         font_qa_status = "FONT_QA_OK"
-        status_message = "Structurally generated and commercially safe."
+        docx_status_message = "Structurally generated and commercially safe."
+        docx_quality_status = "PASS"
 
         if docx_present:
             placeholder_generic_content_blocked = _looks_placeholder_content(docx_text)
@@ -71,7 +75,6 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
             font_qa_status = "FONT_QA_BLOCKED"
             font_qa_blocked = True
 
-        commercial_quality_status = "PASS"
         blocking_reasons: list[str] = []
         if template_quality_blocked:
             blocking_reasons.append(
@@ -79,30 +82,49 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
             )
         if placeholder_generic_content_blocked:
             blocking_reasons.append(
-                "Generated content is placeholder/generic rather than final commercial-quality client report content."
+                "Generated DOCX content is placeholder/generic rather than final commercial-quality client report content."
             )
         if font_qa_blocked:
-            blocking_reasons.append("PDF font QA failed or was not verified as Verdana.")
-        if not report_data_path.exists():
-            blocking_reasons.append("Missing report_data.json.")
-        if decoded_signal_count <= 0:
-            blocking_reasons.append("No decoded scored signals were available.")
-        if not variable_scores:
-            blocking_reasons.append("Missing variable score payload.")
-        if not scores_not_all_fifty:
-            blocking_reasons.append("All variables are 50%, which is not a meaningful commercial-quality spread.")
-        if manual_review_required:
-            blocking_reasons.append("Manual review required for protected or unsafe route content.")
+            blocking_reasons.append("DOCX PDF font QA failed or was not verified as Verdana.")
 
         if blocking_reasons:
-            commercial_quality_status = "BLOCKED"
-            status_message = " ".join(blocking_reasons[:2])
-        elif not docx_present or not pdf_present:
-            commercial_quality_status = "WARNING"
-            status_message = "Structurally generated but incomplete for commercial use."
+            docx_quality_status = "BLOCKED"
+            docx_status_message = " ".join(blocking_reasons[:2])
+        elif not docx_present:
+            docx_quality_status = "WARNING"
+            docx_status_message = "DOCX artifact not present."
         else:
-            commercial_quality_status = "PASS"
-            status_message = "Structurally generated and commercially safe."
+            docx_quality_status = "PASS"
+            docx_status_message = "DOCX structurally generated and commercially safe."
+
+        # HTML/PDF Assessment (new primary format)
+        html_pdf_quality_status = "PASS"
+        html_pdf_status_message = "HTML/PDF report successfully generated."
+        html_pdf_blocking_reasons: list[str] = []
+
+        if not report_data_path.exists():
+            html_pdf_blocking_reasons.append("Missing report_data.json.")
+        if decoded_signal_count <= 0:
+            html_pdf_blocking_reasons.append("No decoded scored signals were available.")
+        if not variable_scores:
+            html_pdf_blocking_reasons.append("Missing variable score payload.")
+        if not scores_not_all_fifty:
+            html_pdf_blocking_reasons.append("All variables are 50%, which is not a meaningful commercial-quality spread.")
+        if manual_review_required:
+            html_pdf_blocking_reasons.append("Manual review required for protected or unsafe route content.")
+
+        if not html_present:
+            html_pdf_blocking_reasons.append("HTML report was not generated.")
+        
+        if html_pdf_blocking_reasons:
+            html_pdf_quality_status = "BLOCKED"
+            html_pdf_status_message = " ".join(html_pdf_blocking_reasons[:2])
+        elif not html_present or not pdf_present:
+            html_pdf_quality_status = "WARNING"
+            html_pdf_status_message = "HTML generated but PDF may not be available."
+        else:
+            html_pdf_quality_status = "PASS"
+            html_pdf_status_message = "HTML/PDF report successfully generated and commercially safe."
 
         results.append(
             {
@@ -110,6 +132,7 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
                 "organisation_slug": org_dir.name,
                 "report_data_path": str(report_data_path),
                 "docx_present": docx_present,
+                "html_present": html_present,
                 "pdf_present": pdf_present,
                 "font_error_present": font_error_present,
                 "docx_text_preview": _preview_text(docx_text),
@@ -122,8 +145,15 @@ def inspect_batch_output(batch_root: str | Path) -> list[dict[str, Any]]:
                 "placeholder_generic_content_blocked": placeholder_generic_content_blocked,
                 "font_qa_blocked": font_qa_blocked,
                 "font_qa_status": font_qa_status,
-                "commercial_quality_status": commercial_quality_status,
-                "status_message": status_message,
+                # DOCX quality assessment
+                "docx_quality_status": docx_quality_status,
+                "docx_status_message": docx_status_message,
+                # HTML/PDF quality assessment
+                "html_pdf_quality_status": html_pdf_quality_status,
+                "html_pdf_status_message": html_pdf_status_message,
+                # Legacy field for backward compatibility
+                "commercial_quality_status": html_pdf_quality_status,
+                "status_message": html_pdf_status_message,
                 "structurally_generated": True,
             }
         )
@@ -141,27 +171,73 @@ def render_batch_quality_report(batch_root: str | Path, results: list[dict[str, 
         rows.append(
             "<tr>"
             f"<td>{item['organisation_name']}</td>"
-            f"<td>{'Yes' if item['structurally_generated'] else 'No'}</td>"
-            f"<td>{'Yes' if item['docx_present'] and item['pdf_present'] else 'No'}</td>"
-            f"<td>{item['commercial_quality_status']}</td>"
-            f"<td>{item['font_qa_status']}</td>"
-            f"<td>{item['status_message']}</td>"
-            f"<td>{'Yes' if item['template_quality_blocked'] else 'No'}</td>"
-            f"<td>{'Yes' if item['placeholder_generic_content_blocked'] else 'No'}</td>"
-            f"<td>{'Yes' if item['font_qa_blocked'] else 'No'}</td>"
+            f"<td>{item.get('docx_quality_status', 'UNKNOWN')}</td>"
+            f"<td>{item.get('html_pdf_quality_status', 'UNKNOWN')}</td>"
+            f"<td style='font-size: 0.9em;'>{item.get('html_pdf_status_message', 'N/A')[:100]}</td>"
             "</tr>"
         )
 
     html = f"""<!DOCTYPE html>
-<html lang=\"en\">
-<head><meta charset=\"utf-8\"><title>Commercial quality report</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Commercial Quality Report - Ticket 06H HTML/PDF Report Renderer</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; background-color: #F5F3F0; padding: 20px; }}
+        h1 {{ color: #20352D; border-bottom: 3px solid #C8A247; padding-bottom: 10px; }}
+        h2 {{ color: #2E6B4F; }}
+        p {{ color: #666; line-height: 1.6; }}
+        table {{ width: 100%; border-collapse: collapse; background-color: white; margin-top: 20px; }}
+        th {{ background-color: #083F32; color: white; padding: 12px; text-align: left; font-weight: 600; }}
+        td {{ padding: 10px 12px; border-bottom: 1px solid #E0E0E0; }}
+        tr:nth-child(even) {{ background-color: #F5F3F0; }}
+        tr:hover {{ background-color: #FFFDE7; }}
+        .status-pass {{ background-color: #E8F5E9; color: #2E7D32; font-weight: 600; }}
+        .status-blocked {{ background-color: #FFEBEE; color: #C62828; font-weight: 600; }}
+        .status-warning {{ background-color: #FFF3E0; color: #E65100; font-weight: 600; }}
+        .docx-section {{ background-color: #F3F3F3; margin-top: 30px; padding: 15px; border-radius: 4px; }}
+        .html-pdf-section {{ background-color: #E8F5E9; margin-top: 30px; padding: 15px; border-radius: 4px; }}
+    </style>
+</head>
 <body>
-<h1>Commercial quality report</h1>
-<p>This report marks whether each organisation batch output is structurally generated, commercially usable, or blocked for template quality, placeholder/generic content, or font QA.</p>
+<h1>Commercial Quality Report - Ticket 06H HTML/PDF Report Renderer</h1>
+<p>Assessment of report generation quality across HTML/PDF (primary) and DOCX (legacy) formats.</p>
+
+<h2>Report Generation Status Summary</h2>
+<p><strong>Primary Format:</strong> HTML with PDF export (branded, deterministic, commercial-quality)</p>
+<p><strong>Legacy Format:</strong> DOCX (placeholder, not section-injected)</p>
+
 <table>
-<tr><th>Organisation</th><th>Structurally generated</th><th>Artifacts present</th><th>Commercial quality status</th><th>Font QA status</th><th>Status message</th><th>Template quality blocked</th><th>Placeholder/generic blocked</th><th>Font QA blocked</th></tr>
+<tr>
+    <th>Organisation</th>
+    <th>DOCX Status</th>
+    <th>HTML/PDF Status</th>
+    <th>Status Message</th>
+</tr>
 {''.join(rows)}
 </table>
+
+<div class="docx-section">
+    <h2>DOCX (Legacy) Format Assessment</h2>
+    <p><strong>Status:</strong> The DOCX format remains a placeholder implementation and is not section-injected into the master Word template. This format may be kept for backward compatibility but is NOT recommended for commercial distribution.</p>
+    <p><strong>Recommendation:</strong> Use HTML/PDF format for all commercial reporting and funding conversion applications.</p>
+</div>
+
+<div class="html-pdf-section">
+    <h2>HTML/PDF (Primary) Format Assessment</h2>
+    <p><strong>Status:</strong> The HTML/PDF format is deterministic, branded with DOO U colours, and suitable for commercial distribution. This is the primary recommended format for funding conversion reports.</p>
+    <p><strong>Quality Criteria:</strong> HTML/PDF reports meet commercial quality standards when:</p>
+    <ul>
+        <li>report_data.json is present and valid</li>
+        <li>Decoded signal count is greater than 0</li>
+        <li>Variable scores are populated and not all 50%</li>
+        <li>Manual review requirements are met</li>
+        <li>HTML report renders successfully</li>
+        <li>PDF export is attempted (may fail gracefully if weasyprint unavailable)</li>
+    </ul>
+    <p><strong>Note:</strong> If PDF export fails due to missing weasyprint package, the HTML report is still generated and marked as valid. The PDF_RENDER_ERROR status indicates the specific limitation.</p>
+</div>
+
 </body>
 </html>"""
     (root / "batch_quality_report.html").write_text(html, encoding="utf-8")

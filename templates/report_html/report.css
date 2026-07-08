@@ -1,0 +1,499 @@
+/* DOO U Report Design - Premium HTML Report */
+
+:root {
+    --doo-dark-green: #20352D;
+    --doo-deep-green: #083F32;
+    --doo-soft-green: #2E6B4F;
+    --doo-gold: #C8A247;
+    --doo-cream: #F5F3F0;
+    --doo-text: #333333;
+    --doo-light-text: #666666;
+    --doo-border: #E0E0E0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--doo-text);
+    background-color: var(--doo-cream);
+    padding: 0;
+    margin: 0;
+}
+
+/* Document wrapper for print */
+.report-document {
+    background-color: white;
+    max-width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.75in;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    page-break-after: always;
+}
+
+/* Cover page */
+.cover-page {
+    background: linear-gradient(135deg, var(--doo-deep-green) 0%, var(--doo-soft-green) 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    page-break-after: always;
+}
+
+.cover-page h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.cover-page .organisation-name {
+    font-size: 1.8em;
+    margin: 1.5em 0;
+    font-weight: 600;
+    color: var(--doo-gold);
+}
+
+.cover-page .overall-score {
+    font-size: 3.5em;
+    font-weight: 700;
+    margin: 1em 0;
+    color: var(--doo-gold);
+}
+
+.cover-page .result-band {
+    font-size: 1.4em;
+    margin: 1em 0;
+    opacity: 0.95;
+}
+
+.cover-page .report-date {
+    font-size: 0.9em;
+    margin-top: 2em;
+    opacity: 0.8;
+}
+
+/* Header and typography */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--doo-dark-green);
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2em;
+    border-bottom: 3px solid var(--doo-gold);
+    padding-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 1.6em;
+    color: var(--doo-soft-green);
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 1.3em;
+    color: var(--doo-soft-green);
+}
+
+h4, h5, h6 {
+    color: var(--doo-text);
+}
+
+p {
+    margin-bottom: 1em;
+    line-height: 1.8;
+}
+
+strong {
+    color: var(--doo-dark-green);
+    font-weight: 600;
+}
+
+em {
+    color: var(--doo-soft-green);
+    font-style: italic;
+}
+
+/* Section containers */
+section {
+    margin-bottom: 2.5em;
+    page-break-inside: avoid;
+}
+
+.section-header {
+    background-color: var(--doo-cream);
+    border-left: 4px solid var(--doo-gold);
+    padding: 1em;
+    margin-bottom: 1.5em;
+}
+
+.section-header h2 {
+    margin-top: 0;
+    color: var(--doo-dark-green);
+}
+
+/* Content blocks */
+.content-block {
+    background-color: white;
+    border: 1px solid var(--doo-border);
+    padding: 1.5em;
+    margin-bottom: 1.5em;
+    border-radius: 4px;
+}
+
+.content-block.highlight {
+    background-color: var(--doo-cream);
+    border-left: 4px solid var(--doo-gold);
+}
+
+.content-block.warning {
+    background-color: #FFF3E0;
+    border-left: 4px solid #FF9800;
+}
+
+.content-block.success {
+    background-color: #E8F5E9;
+    border-left: 4px solid #4CAF50;
+}
+
+/* Scores and metrics */
+.score-display {
+    text-align: center;
+    padding: 1.5em;
+    background: linear-gradient(135deg, var(--doo-soft-green) 0%, var(--doo-dark-green) 100%);
+    color: white;
+    border-radius: 8px;
+    margin: 1.5em 0;
+}
+
+.score-display .score-value {
+    font-size: 3em;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.3em;
+}
+
+.score-display .score-label {
+    font-size: 1.1em;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.score-gauge {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin: 1.5em 0;
+}
+
+.score-gauge .gauge-bar {
+    flex: 1;
+    height: 24px;
+    background-color: var(--doo-border);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--doo-soft-green);
+}
+
+.score-gauge .gauge-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--doo-soft-green), var(--doo-gold));
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.5em;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.score-value-text {
+    font-weight: 700;
+    color: var(--doo-dark-green);
+    min-width: 3.5em;
+    text-align: right;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    background-color: white;
+}
+
+th {
+    background-color: var(--doo-soft-green);
+    color: white;
+    padding: 1em;
+    text-align: left;
+    font-weight: 600;
+    border: none;
+}
+
+td {
+    padding: 0.8em 1em;
+    border-bottom: 1px solid var(--doo-border);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:nth-child(even) {
+    background-color: var(--doo-cream);
+}
+
+tbody tr:hover {
+    background-color: #F5F5F5;
+}
+
+.table-score {
+    font-weight: 600;
+    color: var(--doo-soft-green);
+}
+
+.table-code {
+    font-family: 'Courier New', monospace;
+    color: var(--doo-text);
+    font-size: 0.9em;
+}
+
+/* Lists */
+ul, ol {
+    margin-left: 2em;
+    margin-bottom: 1.5em;
+}
+
+li {
+    margin-bottom: 0.5em;
+}
+
+ul li:before {
+    content: "▸";
+    color: var(--doo-gold);
+    font-weight: bold;
+    margin-right: 0.75em;
+    margin-left: -1.5em;
+}
+
+/* Badges and labels */
+.badge {
+    display: inline-block;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.badge-success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #FF9800;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #F44336;
+    color: white;
+}
+
+.badge-info {
+    background-color: var(--doo-soft-green);
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #999;
+    color: white;
+}
+
+/* Flag sections */
+.flag-box {
+    border-left: 4px solid;
+    padding: 1em;
+    margin: 1.5em 0;
+    border-radius: 2px;
+}
+
+.flag-box.protected-evidence {
+    border-left-color: #9C27B0;
+    background-color: #F3E5F5;
+}
+
+.flag-box.unsafe-route {
+    border-left-color: #FF5722;
+    background-color: #FFEBEE;
+}
+
+.flag-box.manual-review {
+    border-left-color: #FFC107;
+    background-color: #FFFDE7;
+}
+
+.flag-icon {
+    font-weight: 700;
+    font-size: 1.2em;
+    margin-right: 0.5em;
+}
+
+/* Grid layout for variable/assessment scores */
+.scores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5em;
+    margin: 1.5em 0;
+}
+
+.score-card {
+    border: 1px solid var(--doo-border);
+    border-radius: 4px;
+    padding: 1em;
+    background-color: white;
+    page-break-inside: avoid;
+}
+
+.score-card .card-code {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: var(--doo-deep-green);
+    font-size: 0.9em;
+}
+
+.score-card .card-label {
+    font-size: 0.95em;
+    margin: 0.5em 0;
+    color: var(--doo-text);
+}
+
+.score-card .card-score {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--doo-soft-green);
+    margin-top: 0.5em;
+}
+
+.score-card .card-score::after {
+    content: "%";
+    font-size: 0.6em;
+    margin-left: 0.2em;
+}
+
+/* Footer */
+footer {
+    border-top: 2px solid var(--doo-gold);
+    padding-top: 1.5em;
+    margin-top: 2.5em;
+    color: var(--doo-light-text);
+    font-size: 0.9em;
+    page-break-inside: avoid;
+}
+
+.footer-contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2em;
+    margin: 1em 0;
+}
+
+.footer-section h4 {
+    color: var(--doo-dark-green);
+    font-size: 1em;
+    margin-bottom: 0.5em;
+}
+
+.footer-section p {
+    margin-bottom: 0.3em;
+    font-size: 0.9em;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background-color: white;
+        padding: 0;
+    }
+
+    .report-document {
+        box-shadow: none;
+        margin: 0;
+        max-width: 100%;
+        height: auto;
+    }
+
+    section {
+        page-break-inside: avoid;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    a {
+        text-decoration: none;
+        color: var(--doo-dark-green);
+    }
+
+    th, td {
+        page-break-inside: avoid;
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .report-document {
+        max-width: 100%;
+        padding: 0.5in;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    .cover-page h1 {
+        font-size: 2em;
+    }
+
+    .cover-page .organisation-name {
+        font-size: 1.3em;
+    }
+
+    .cover-page .overall-score {
+        font-size: 2.5em;
+    }
+
+    .scores-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .score-gauge {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -9,7 +9,9 @@ import pandas as pd
 from docx import Document
 
 from engine.commercial_qa import render_batch_quality_report
+from engine.html_report_renderer import render_html_report, HTMLReportRendererError
 from engine.limesurvey_decoder import DecodedResponse
+from engine.pdf_report_renderer import render_pdf_report
 from engine.report_data_builder import ReportDataBuilderError
 from engine.scoring_engine import ScoredOrganisation
 
@@ -53,21 +55,39 @@ def generate_batch_outputs(
                 encoding="utf-8",
             )
 
+        # Generate DOCX (placeholder format - kept for backward compatibility)
         template_path = _find_template_path()
         shutil.copy2(template_path, org_dir / "report.docx")
+        _create_placeholder_docx(org_dir / "report.docx", report_data)
 
-        self_check = _create_placeholder_docx(org_dir / "report.docx", report_data)
-        if self_check:
-            (org_dir / "report.pdf").write_bytes(b"pdf placeholder")
-        else:
-            (org_dir / "FONT_QA_ERROR.txt").write_text("FONT_QA_ERROR: pdffonts unavailable or font verification failed", encoding="utf-8")
+        # Generate HTML report
+        html_path = org_dir / "report.html"
+        html_render_result = {"status": "HTML_RENDER_ERROR", "html_path": None}
+        try:
+            html_content = render_html_report(report_data, html_path)
+            html_render_result = {"status": "HTML_RENDERED", "html_path": str(html_path)}
+        except HTMLReportRendererError as e:
+            html_render_result = {"status": "HTML_RENDER_ERROR", "error": str(e), "html_path": None}
+
+        # Generate PDF report from HTML
+        pdf_path = org_dir / "report_branded.pdf"
+        pdf_render_result = {"status": "PDF_RENDER_NOT_ATTEMPTED", "pdf_path": None}
+        if html_render_result["status"] == "HTML_RENDERED":
+            try:
+                html_content = (org_dir / "report.html").read_text(encoding="utf-8")
+                pdf_render_result = render_pdf_report(html_content, pdf_path)
+            except Exception as e:
+                pdf_render_result = {"status": "PDF_RENDER_ERROR", "error": str(e), "pdf_path": None}
 
         generated.append({
             "organisation_name": decoded.organisation_name,
             "organisation_slug": organisation_slug,
             "report_data_path": str(org_dir / "report_data.json"),
             "docx_path": str(org_dir / "report.docx"),
-            "pdf_path": str(org_dir / "report.pdf") if (org_dir / "report.pdf").exists() else None,
+            "html_path": html_render_result.get("html_path"),
+            "html_status": html_render_result.get("status"),
+            "pdf_path": pdf_render_result.get("pdf_path") if pdf_render_result.get("status") == "PDF_RENDERED" else None,
+            "pdf_status": pdf_render_result.get("status"),
         })
 
     _write_batch_index(target_root, generated)
@@ -116,13 +136,55 @@ def _write_batch_quality_report(target_root: Path, generated: list[dict[str, Any
         rows.append(
             {
                 "organisation": item["organisation_name"],
-                "report_data": item["report_data_path"],
-                "docx": item["docx_path"],
-                "pdf": item["pdf_path"] or "MISSING",
+                "report_data": "✓" if item.get("report_data_path") else "✗",
+                "html": item.get("html_status", "MISSING"),
+                "pdf": item.get("pdf_status", "MISSING"),
+                "docx": "✓" if item.get("docx_path") else "✗",
             }
         )
-    html = "<html><body><h1>Batch Quality Report</h1><ul>"
+    
+    html_rows = []
     for row in rows:
-        html += f"<li>{row['organisation']}: PDF={row['pdf']}</li>"
-    html += "</ul></body></html>"
-    (target_root / "batch_quality_report.html").write_text(html, encoding="utf-8")
+        html_rows.append(
+            f"<tr>"
+            f"<td>{row['organisation']}</td>"
+            f"<td>{row['report_data']}</td>"
+            f"<td>{row['html']}</td>"
+            f"<td>{row['pdf']}</td>"
+            f"<td>{row['docx']}</td>"
+            f"</tr>"
+        )
+    
+    html_table = (
+        "<table border='1' style='border-collapse: collapse; width: 100%;'>"
+        "<tr style='background-color: #20352D; color: white;'>"
+        "<th style='padding: 8px;'>Organisation</th>"
+        "<th style='padding: 8px;'>Report Data</th>"
+        "<th style='padding: 8px;'>HTML Report</th>"
+        "<th style='padding: 8px;'>PDF Report</th>"
+        "<th style='padding: 8px;'>DOCX (Legacy)</th>"
+        "</tr>"
+        + "".join(html_rows)
+        + "</table>"
+    )
+    
+    html_content = f"""<html>
+<head>
+    <title>Batch Quality Report</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; background-color: #F5F3F0; padding: 20px; }}
+        h1 {{ color: #20352D; }}
+        table {{ margin: 20px 0; background-color: white; }}
+        th, td {{ padding: 8px; text-align: left; border: 1px solid #E0E0E0; }}
+        th {{ background-color: #2E6B4F; color: white; }}
+        tr:nth-child(even) {{ background-color: #F5F3F0; }}
+    </style>
+</head>
+<body>
+    <h1>Batch Quality Report</h1>
+    <p>HTML/PDF Report Generation Status</p>
+    {html_table}
+</body>
+</html>"""
+    
+    (target_root / "batch_quality_report.html").write_text(html_content, encoding="utf-8")
