@@ -75,7 +75,7 @@
         <div class="organisation-name">{{ organisation_name }}</div>
         <div class="overall-score">{{ overall_score }}</div>
         <div class="result-band">{{ result_band }}</div>
-        <div class="report-date">Generated {{ 'now'|date('F d, Y') }}</div>
+        <div class="report-date">Generated {{ report_generated_label }}</div>
     </div>
 
     <!-- SECTION 1: HOW TO READ THIS REPORT -->
@@ -313,30 +313,42 @@
         <div class="content-block">
             {% if protected_evidence_flag %}
             <div class="flag-box protected-evidence">
-                <strong>⚠ Protected Evidence Detected</strong>
+                <strong>{% if show_protected_evidence_detail %}⚠ Protected Evidence Detected{% else %}⚠ Safeguarding Review Required{% endif %}</strong>
+                {% if show_protected_evidence_detail %}
                 <p>This submission contains protected, sensitive, or confidential information. Manual review is required to ensure appropriate handling and interpretation.</p>
+                {% else %}
+                <p>Detailed safeguarding information is withheld in this Free Report. The internal review copy retains the full handling notes.</p>
+                {% endif %}
             </div>
             {% endif %}
 
             {% if unsafe_route_flag %}
             <div class="flag-box unsafe-route">
-                <strong>⚠ Unsafe Route Flagged</strong>
+                <strong>{% if show_unsafe_route_detail %}⚠ Unsafe Route Flagged{% else %}⚠ Route Review Required{% endif %}</strong>
+                {% if show_unsafe_route_detail %}
                 <p>This assessment has identified factors requiring manual review before proceeding with funding conversion. Please contact the DOO U team for guidance.</p>
+                {% else %}
+                <p>Route-risk detail is withheld in this Free Report. Please use the internal review copy before making route decisions.</p>
+                {% endif %}
             </div>
             {% endif %}
 
-            {% if manual_review_flags %}
+            {% if manual_review_required %}
             <div class="flag-box manual-review">
                 <strong>📋 Manual Review Required</strong>
+                {% if visible_manual_review_flags %}
                 <ul>
-                    {% for flag in manual_review_flags %}
+                    {% for flag in visible_manual_review_flags %}
                     <li>{{ flag }}</li>
                     {% endfor %}
                 </ul>
+                {% else %}
+                <p>Detailed manual review notes are withheld in this Free Report.</p>
+                {% endif %}
             </div>
             {% endif %}
 
-            {% if not manual_review_flags and not protected_evidence_flag and not unsafe_route_flag %}
+            {% if not manual_review_required and not protected_evidence_flag and not unsafe_route_flag %}
             <div class="content-block">
                 <p>No safeguarding flags have been raised for this submission. The assessment may proceed to the next stage.</p>
             </div>
@@ -380,7 +392,7 @@
                 <div class="footer-section">
                     <h4>Report Details</h4>
                     <p><strong>Organisation:</strong> {{ organisation_name }}</p>
-                    <p><strong>Generated:</strong> {{ 'now'|date('F d, Y H:i') }}</p>
+                    <p><strong>Generated:</strong> {{ report_generated_label }}</p>
                 </div>
                 <div class="footer-section">
                     <h4>Confidentiality</h4>
