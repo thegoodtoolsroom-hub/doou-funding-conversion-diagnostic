@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
@@ -13,13 +12,18 @@ class HTMLReportRendererError(Exception):
     """Raised when HTML report rendering fails."""
 
 
-def render_html_report(report_data: dict[str, Any], output_path: str | Path | None = None) -> str:
+def render_html_report(
+    report_data: dict[str, Any],
+    output_path: str | Path | None = None,
+    report_variant: str = "full",
+) -> str:
     """
     Render a branded HTML report from report_data.json.
 
     Args:
         report_data: Dictionary from report_data.json
         output_path: Optional path to write HTML file
+        report_variant: Either "full" or "free" visibility mode
 
     Returns:
         HTML string
@@ -28,7 +32,7 @@ def render_html_report(report_data: dict[str, Any], output_path: str | Path | No
         HTMLReportRendererError: If rendering fails
     """
     try:
-        report_content = build_report_content(report_data)
+        report_content = build_report_content(report_data, report_variant=report_variant)
     except ReportContentBuilderError as e:
         raise HTMLReportRendererError(f"Failed to build report content: {e}") from e
 

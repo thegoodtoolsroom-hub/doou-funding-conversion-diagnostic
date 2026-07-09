@@ -7,7 +7,7 @@ class ReportContentBuilderError(Exception):
     """Raised when report content cannot be safely built."""
 
 
-def build_report_content(report_data: dict[str, Any]) -> dict[str, Any]:
+def build_report_content(report_data: dict[str, Any], report_variant: str = "full") -> dict[str, Any]:
     """
     Transform report_data.json payload into structured content for HTML/PDF rendering.
 
@@ -25,6 +25,10 @@ def build_report_content(report_data: dict[str, Any]) -> dict[str, Any]:
     """
     if not isinstance(report_data, dict):
         raise ReportContentBuilderError("report_data must be a dictionary")
+
+    variant = report_variant.lower()
+    if variant not in {"full", "free"}:
+        raise ReportContentBuilderError("report_variant must be 'full' or 'free'")
 
     org_profile = report_data.get("organisation_profile", {})
     org_name = org_profile.get("name", "Unknown Organisation")
@@ -46,6 +50,10 @@ def build_report_content(report_data: dict[str, Any]) -> dict[str, Any]:
     protected_evidence_flag = report_data.get("protected_evidence_flag", False)
     unsafe_route_flag = report_data.get("unsafe_route_flag", False)
     manual_review_flags = report_data.get("manual_review_flags", []) or []
+    actionable_manual_review_flags = [
+        flag for flag in manual_review_flags if _is_actionable_manual_review_flag(flag)
+    ]
+    manual_review_required = bool(actionable_manual_review_flags)
 
     free_visibility = report_data.get("free_report_visibility", {}) or {}
     full_visibility = report_data.get("full_report_visibility", {}) or {}
@@ -62,10 +70,24 @@ def build_report_content(report_data: dict[str, Any]) -> dict[str, Any]:
     # Build journey stage scores
     journey_stage_scores_labeled = _label_journey_stage_scores(journey_stage_scores)
 
-    # Prepare visibility settings for template
-    is_free_report = False  # Default to full internal report
-    show_protected_evidence_detail = full_visibility.get("protected_evidence_detail", True)
-    show_unsafe_route_detail = full_visibility.get("unsafe_route_detail", True)
+    # Prepare visibility settings for template.
+    is_free_report = variant == "free"
+    visibility = free_visibility if is_free_report else full_visibility
+    show_protected_evidence_detail = visibility.get(
+        "protected_evidence_detail",
+        False if is_free_report else True,
+    )
+    show_unsafe_route_detail = visibility.get(
+        "unsafe_route_detail",
+        False if is_free_report else True,
+    )
+    visible_manual_review_flags = [] if is_free_report else actionable_manual_review_flags
+    report_generated_label = str(
+        report_data.get("report_generated_label")
+        or report_data.get("report_generated_date")
+        or report_data.get("report_generated_at")
+        or "from report_data.json"
+    )
 
     return {
         "organisation_name": org_name,
@@ -81,11 +103,24 @@ def build_report_content(report_data: dict[str, Any]) -> dict[str, Any]:
         "protected_evidence_flag": protected_evidence_flag,
         "unsafe_route_flag": unsafe_route_flag,
         "manual_review_flags": manual_review_flags,
+        "visible_manual_review_flags": visible_manual_review_flags,
+        "manual_review_required": manual_review_required,
         "is_free_report": is_free_report,
         "show_protected_evidence_detail": show_protected_evidence_detail,
         "show_unsafe_route_detail": show_unsafe_route_detail,
+        "report_generated_label": report_generated_label,
         "report_generated": True,
     }
+
+
+def _is_actionable_manual_review_flag(flag: Any) -> bool:
+    lowered = str(flag).strip().lower()
+    if not lowered or lowered == "no manual review required":
+        return False
+    return any(
+        token in lowered
+        for token in ("manual review", "requires review", "protected evidence", "unsafe route")
+    )
 
 
 def _calculate_diagnostic_confidence(signal_count: int, variable_scores: dict[str, float]) -> int:
