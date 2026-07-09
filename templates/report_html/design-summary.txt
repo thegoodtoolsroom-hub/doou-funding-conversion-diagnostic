@@ -1,0 +1,12 @@
+Ticket 06H-D premium report design pass
+Branch: wip-ticket-06h-html-pdf-renderer
+Commit: b3ff828f60a5402fe896e5170ef51e5581b2d334
+Changed files:
+- templates/report_html/report.html
+- templates/report_html/report.css
+Verification:
+- python -m pytest tests -q: 60 passed
+- python -m engine.generate_sample: worked
+Engine logic changed: no
+Commercial QA: still separates DOCX Status, HTML Render, PDF Render, and HTML/PDF Quality Status
+Push: failed in Codex environment because github.com could not be resolved
