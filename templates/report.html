@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOO U Funding Conversion Diagnostic Report - {{ organisation_name }}</title>
+    <link rel="stylesheet" href="report.css">
+    <style>
+        /* Inline styles for self-contained HTML */
+        :root {
+            --doo-dark-green: #20352D;
+            --doo-deep-green: #083F32;
+            --doo-soft-green: #2E6B4F;
+            --doo-gold: #C8A247;
+            --doo-cream: #F5F3F0;
+            --doo-text: #333333;
+            --doo-light-text: #666666;
+            --doo-border: #E0E0E0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--doo-text); background-color: var(--doo-cream); }
+        .report-document { background-color: white; max-width: 8.5in; margin: 0 auto; padding: 0.75in; }
+        .cover-page { background: linear-gradient(135deg, var(--doo-deep-green) 0%, var(--doo-soft-green) 100%); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 100vh; page-break-after: always; }
+        .cover-page h1 { font-size: 2.5em; margin-bottom: 0.5em; font-weight: 300; letter-spacing: 1px; }
+        .cover-page .organisation-name { font-size: 1.8em; margin: 1.5em 0; font-weight: 600; color: var(--doo-gold); }
+        .cover-page .overall-score { font-size: 3.5em; font-weight: 700; margin: 1em 0; color: var(--doo-gold); }
+        .cover-page .result-band { font-size: 1.4em; margin: 1em 0; opacity: 0.95; }
+        .cover-page .report-date { font-size: 0.9em; margin-top: 2em; opacity: 0.8; }
+        h1, h2, h3, h4, h5, h6 { color: var(--doo-dark-green); margin-top: 1.5em; margin-bottom: 0.8em; font-weight: 600; }
+        h1 { font-size: 2em; border-bottom: 3px solid var(--doo-gold); padding-bottom: 0.5em; }
+        h2 { font-size: 1.6em; color: var(--doo-soft-green); }
+        h3 { font-size: 1.3em; color: var(--doo-soft-green); }
+        p { margin-bottom: 1em; line-height: 1.8; }
+        section { margin-bottom: 2.5em; page-break-inside: avoid; }
+        .section-header { background-color: var(--doo-cream); border-left: 4px solid var(--doo-gold); padding: 1em; margin-bottom: 1.5em; }
+        .section-header h2 { margin-top: 0; color: var(--doo-dark-green); }
+        .content-block { background-color: white; border: 1px solid var(--doo-border); padding: 1.5em; margin-bottom: 1.5em; border-radius: 4px; }
+        .content-block.highlight { background-color: var(--doo-cream); border-left: 4px solid var(--doo-gold); }
+        .score-display { text-align: center; padding: 1.5em; background: linear-gradient(135deg, var(--doo-soft-green) 0%, var(--doo-dark-green) 100%); color: white; border-radius: 8px; margin: 1.5em 0; }
+        .score-display .score-value { font-size: 3em; font-weight: 700; line-height: 1; margin-bottom: 0.3em; }
+        .score-display .score-label { font-size: 1.1em; opacity: 0.9; font-weight: 500; }
+        .score-gauge { display: flex; align-items: center; gap: 1em; margin: 1.5em 0; }
+        .score-gauge .gauge-bar { flex: 1; height: 24px; background-color: var(--doo-border); border-radius: 12px; overflow: hidden; border: 1px solid var(--doo-soft-green); }
+        .score-gauge .gauge-fill { height: 100%; background: linear-gradient(90deg, var(--doo-soft-green), var(--doo-gold)); display: flex; align-items: center; justify-content: flex-end; padding-right: 0.5em; color: white; font-weight: 600; font-size: 0.85em; }
+        .score-value-text { font-weight: 700; color: var(--doo-dark-green); min-width: 3.5em; text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5em 0; background-color: white; }
+        th { background-color: var(--doo-soft-green); color: white; padding: 1em; text-align: left; font-weight: 600; }
+        td { padding: 0.8em 1em; border-bottom: 1px solid var(--doo-border); }
+        tr:nth-child(even) { background-color: var(--doo-cream); }
+        .badge { display: inline-block; padding: 0.4em 0.8em; border-radius: 20px; font-size: 0.85em; font-weight: 600; margin-right: 0.5em; }
+        .badge-success { background-color: #4CAF50; color: white; }
+        .badge-warning { background-color: #FF9800; color: white; }
+        .badge-danger { background-color: #F44336; color: white; }
+        .badge-info { background-color: var(--doo-soft-green); color: white; }
+        .flag-box { border-left: 4px solid; padding: 1em; margin: 1.5em 0; border-radius: 2px; }
+        .flag-box.protected-evidence { border-left-color: #9C27B0; background-color: #F3E5F5; }
+        .flag-box.unsafe-route { border-left-color: #FF5722; background-color: #FFEBEE; }
+        .flag-box.manual-review { border-left-color: #FFC107; background-color: #FFFDE7; }
+        .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5em; margin: 1.5em 0; }
+        .score-card { border: 1px solid var(--doo-border); border-radius: 4px; padding: 1em; background-color: white; }
+        .score-card .card-code { font-family: 'Courier New', monospace; font-weight: 700; color: var(--doo-deep-green); font-size: 0.9em; }
+        .score-card .card-label { font-size: 0.95em; margin: 0.5em 0; }
+        .score-card .card-score { font-size: 1.8em; font-weight: 700; color: var(--doo-soft-green); margin-top: 0.5em; }
+        footer { border-top: 2px solid var(--doo-gold); padding-top: 1.5em; margin-top: 2.5em; color: var(--doo-light-text); font-size: 0.9em; }
+        .footer-contact { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2em; margin: 1em 0; }
+        @media print { body { background-color: white; } .report-document { box-shadow: none; } section { page-break-inside: avoid; } }
+    </style>
+</head>
+<body>
+<div class="report-document">
+    <!-- COVER PAGE -->
+    <div class="cover-page">
+        <h1>DOO U Funding Conversion Diagnostic Report</h1>
+        <div class="organisation-name">{{ organisation_name }}</div>
+        <div class="overall-score">{{ overall_score }}</div>
+        <div class="result-band">{{ result_band }}</div>
+        <div class="report-date">Generated {{ report_generated_label }}</div>
+    </div>
+
+    <!-- SECTION 1: HOW TO READ THIS REPORT -->
+    <section id="how-to-read">
+        <div class="section-header">
+            <h2>How to Read This Report</h2>
+        </div>
+        <div class="content-block">
+            <h3>Overview</h3>
+            <p>This diagnostic report provides a structured assessment of {{ organisation_name }}'s readiness to access funding opportunities. It is based on a comprehensive evaluation across 12 key variables and 24 detailed assessment areas.</p>
+            
+            <h3>Score Interpretation</h3>
+            <p>Scores are presented as percentages (0–100%) and indicate readiness levels:</p>
+            <ul>
+                <li><strong>80–100%:</strong> Strong readiness in this area; minimal barriers expected</li>
+                <li><strong>60–79%:</strong> Good foundation; targeted improvements can strengthen readiness</li>
+                <li><strong>40–59%:</strong> Moderate challenges; structured support recommended</li>
+                <li><strong>0–39%:</strong> Significant barriers; priority attention required</li>
+            </ul>
+
+            <h3>Report Sections</h3>
+            <ol>
+                <li><strong>Diagnostic Confidence</strong> – Reliability metric based on decoded data signals</li>
+                <li><strong>Executive Summary</strong> – Key findings and overall readiness band</li>
+                <li><strong>Funding Conversion Snapshot</strong> – Visual summary of journey stages</li>
+                <li><strong>12 Variable Scores</strong> – Core readiness dimensions</li>
+                <li><strong>24 Assessment Area Scores</strong> – Detailed sub-dimensions</li>
+                <li><strong>Application Journey Review</strong> – Stage-by-stage progression</li>
+                <li><strong>Top Repair Priorities</strong> – Recommended focus areas</li>
+                <li><strong>30/60/90 Recommended Next Moves</strong> – Phased action plan</li>
+                <li><strong>Manual Review & Safeguarding</strong> – Important considerations</li>
+                <li><strong>DOO U Support Options</strong> – Available resources and next steps</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- SECTION 2: DIAGNOSTIC CONFIDENCE -->
+    <section id="diagnostic-confidence">
+        <div class="section-header">
+            <h2>Diagnostic Confidence</h2>
+        </div>
+        <div class="content-block">
+            <p>This report is based on <strong>{{ decoded_signal_count }} decoded response signals</strong> from your organisation's submission.</p>
+            <div class="score-display">
+                <div class="score-value">{{ diagnostic_confidence_score }}</div>
+                <div class="score-label">Diagnostic Confidence Score</div>
+            </div>
+            <p>A higher confidence score indicates a more reliable diagnostic. Confidence is calculated from the quantity and diversity of response signals and the spread of scores across readiness dimensions.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 3: EXECUTIVE SUMMARY -->
+    <section id="executive-summary">
+        <div class="section-header">
+            <h2>Executive Summary</h2>
+        </div>
+        <div class="content-block highlight">
+            <h3>Overall Readiness Assessment</h3>
+            <div class="score-display">
+                <div class="score-value">{{ overall_score }}</div>
+                <div class="score-label">Overall Readiness Score</div>
+            </div>
+            <p><strong>Result Band:</strong> <span class="badge badge-info">{{ result_band }}</span></p>
+            <p>{{ organisation_name }} has been assessed at the <em>{{ result_band }}</em> level of readiness for funding conversion. This indicates the stage at which the organisation would benefit most from targeted support and preparation.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 4: FUNDING CONVERSION SNAPSHOT -->
+    <section id="funding-snapshot">
+        <div class="section-header">
+            <h2>Funding Conversion Snapshot</h2>
+        </div>
+        <div class="content-block">
+            <h3>Application Journey Stages</h3>
+            <p>Your organisation's progression across the five stages of funding readiness:</p>
+            {% for stage in journey_stage_scores %}
+            <div class="score-gauge">
+                <div class="score-value-text">{{ stage.label }}</div>
+                <div class="gauge-bar">
+                    <div class="gauge-fill" style="width: {{ stage.score }}%;">{{ stage.score|percentage }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            <p><strong>Current Breakpoint Stage:</strong> {{ breakpoint_stage }}</p>
+        </div>
+    </section>
+
+    <!-- SECTION 5: 12 VARIABLE SCORES -->
+    <section id="variable-scores">
+        <div class="section-header">
+            <h2>12 Variable Scores</h2>
+        </div>
+        <div class="content-block">
+            <p>These 12 core variables form the foundation of the funding readiness assessment:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Dimension</th>
+                        <th style="text-align: right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variable in variable_scores %}
+                    <tr>
+                        <td class="table-code">{{ variable.code }}</td>
+                        <td>{{ variable.label }}</td>
+                        <td class="table-score" style="text-align: right;">{{ variable.score|percentage }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 6: 24 ASSESSMENT AREA SCORES -->
+    <section id="assessment-areas">
+        <div class="section-header">
+            <h2>24 Assessment Area Scores</h2>
+        </div>
+        <div class="content-block">
+            <p>Detailed breakdown of readiness across 24 assessment areas:</p>
+            <div class="scores-grid">
+                {% for area in assessment_area_scores %}
+                <div class="score-card">
+                    <div class="card-code">{{ area.code }}</div>
+                    <div class="card-label">{{ area.label }}</div>
+                    <div class="card-score">{{ area.score }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: APPLICATION JOURNEY REVIEW -->
+    <section id="journey-review">
+        <div class="section-header">
+            <h2>Application Journey Review</h2>
+        </div>
+        <div class="content-block">
+            <h3>Readiness by Stage</h3>
+            <p>Understanding where your organisation stands in the funding readiness journey:</p>
+            <ul>
+                <li><strong>Stage 1 – Readiness Check:</strong> Foundational assessment and baseline diagnostic</li>
+                <li><strong>Stage 2 – Foundation Building:</strong> Core systems and basic governance structures</li>
+                <li><strong>Stage 3 – Capability Development:</strong> Intermediate planning and risk management</li>
+                <li><strong>Stage 4 – Advanced Preparation:</strong> Mature systems and evidence documentation</li>
+                <li><strong>Stage 5 – Conversation/Clarification:</strong> Donor engagement and tailored funding fit</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 8: DOCUMENT & EVIDENCE READINESS -->
+    <section id="evidence-readiness">
+        <div class="section-header">
+            <h2>Document & Evidence Readiness</h2>
+        </div>
+        <div class="content-block">
+            <h3>Evidence Submission Status</h3>
+            <p>Assessment of your organisation's documentation and evidence quality:</p>
+            <ul>
+                <li><strong>Document Completeness:</strong> All required documentation has been submitted and reviewed</li>
+                <li><strong>Evidence Sufficiency:</strong> Documentation provides adequate evidence for assessment</li>
+                <li><strong>Quality and Clarity:</strong> Documents are professionally prepared and clearly presented</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 9: TOP REPAIR PRIORITIES -->
+    <section id="repair-priorities">
+        <div class="section-header">
+            <h2>Top Repair Priorities</h2>
+        </div>
+        <div class="content-block">
+            <h3>Recommended Focus Areas</h3>
+            <p>Based on the diagnostic assessment, focus on these areas to improve funding readiness:</p>
+            <ul>
+                {% for priority in top_repair_priorities %}
+                <li><strong>{{ priority }}</strong></li>
+                {% endfor %}
+            </ul>
+            <p><em>Addressing these priorities will have the most significant impact on your funding readiness profile and application success.</em></p>
+        </div>
+    </section>
+
+    <!-- SECTION 10: ROUTE RECOMMENDATION -->
+    <section id="route-recommendation">
+        <div class="section-header">
+            <h2>Route Recommendation</h2>
+        </div>
+        <div class="content-block highlight">
+            <h3>Recommended Funding Conversion Path</h3>
+            <p>Based on this diagnostic assessment, {{ organisation_name }} is positioned at <strong>{{ result_band }}</strong>.</p>
+            <p>This assessment recommends a phased approach to funding conversion, with structured support at each stage to address identified readiness gaps and build organisational capacity.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 11: 30/60/90 RECOMMENDED NEXT MOVES -->
+    <section id="next-moves">
+        <div class="section-header">
+            <h2>30/60/90 Recommended Next Moves</h2>
+        </div>
+        <div class="content-block">
+            <h3>Phase 1: Next 30 Days</h3>
+            <ul>
+                <li>Review this diagnostic report in detail with organisational leadership</li>
+                <li>Identify quick wins in top repair priority areas</li>
+                <li>Establish a readiness improvement task force</li>
+                <li>Document current process and policy gaps</li>
+            </ul>
+
+            <h3>Phase 2: Days 31–60</h3>
+            <ul>
+                <li>Implement foundational improvements in priority areas</li>
+                <li>Develop action plans for medium-term readiness upgrades</li>
+                <li>Begin evidence documentation and compilation</li>
+                <li>Engage DOO U support team for guidance</li>
+            </ul>
+
+            <h3>Phase 3: Days 61–90</h3>
+            <ul>
+                <li>Complete implementation of Phase 2 improvements</li>
+                <li>Prepare organisation for next funding assessment stage</li>
+                <li>Consolidate evidence portfolio and documentation</li>
+                <li>Schedule follow-up diagnostic and progress review</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 12: MANUAL REVIEW & SAFEGUARDING NOTES -->
+    <section id="manual-review">
+        <div class="section-header">
+            <h2>Manual Review & Safeguarding Notes</h2>
+        </div>
+        <div class="content-block">
+            {% if protected_evidence_flag %}
+            <div class="flag-box protected-evidence">
+                <strong>{% if show_protected_evidence_detail %}⚠ Protected Evidence Detected{% else %}⚠ Safeguarding Review Required{% endif %}</strong>
+                {% if show_protected_evidence_detail %}
+                <p>This submission contains protected, sensitive, or confidential information. Manual review is required to ensure appropriate handling and interpretation.</p>
+                {% else %}
+                <p>Detailed safeguarding information is withheld in this Free Report. The internal review copy retains the full handling notes.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if unsafe_route_flag %}
+            <div class="flag-box unsafe-route">
+                <strong>{% if show_unsafe_route_detail %}⚠ Unsafe Route Flagged{% else %}⚠ Route Review Required{% endif %}</strong>
+                {% if show_unsafe_route_detail %}
+                <p>This assessment has identified factors requiring manual review before proceeding with funding conversion. Please contact the DOO U team for guidance.</p>
+                {% else %}
+                <p>Route-risk detail is withheld in this Free Report. Please use the internal review copy before making route decisions.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if manual_review_required %}
+            <div class="flag-box manual-review">
+                <strong>📋 Manual Review Required</strong>
+                {% if visible_manual_review_flags %}
+                <ul>
+                    {% for flag in visible_manual_review_flags %}
+                    <li>{{ flag }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Detailed manual review notes are withheld in this Free Report.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if not manual_review_required and not protected_evidence_flag and not unsafe_route_flag %}
+            <div class="content-block">
+                <p>No safeguarding flags have been raised for this submission. The assessment may proceed to the next stage.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- SECTION 13: DOO U SUPPORT OPTIONS -->
+    <section id="support-options">
+        <div class="section-header">
+            <h2>DOO U Support Options</h2>
+        </div>
+        <div class="content-block">
+            <h3>Available Resources</h3>
+            <p>DOO U offers structured support to help organisations improve funding readiness:</p>
+            <ul>
+                <li><strong>Diagnostic Coaching:</strong> 1-on-1 guidance based on this report</li>
+                <li><strong>Capacity Building Workshops:</strong> Group training on priority areas</li>
+                <li><strong>Document Preparation Support:</strong> Help with evidence compilation and presentation</li>
+                <li><strong>Grant Application Coaching:</strong> Support for successful funding conversion</li>
+                <li><strong>Progress Tracking:</strong> Follow-up assessments to measure improvement</li>
+            </ul>
+
+            <h3>Next Steps</h3>
+            <p>To engage DOO U support or schedule a follow-up assessment, contact the team at the information provided below.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 14: CONTACT -->
+    <section id="contact">
+        <div class="section-header">
+            <h2>Contact & Support</h2>
+        </div>
+        <footer>
+            <div class="footer-contact">
+                <div class="footer-section">
+                    <h4>DOO U</h4>
+                    <p>Funding Conversion Diagnostic</p>
+                    <p><a href="https://www.doou.org">www.doou.org</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Report Details</h4>
+                    <p><strong>Organisation:</strong> {{ organisation_name }}</p>
+                    <p><strong>Generated:</strong> {{ report_generated_label }}</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Confidentiality</h4>
+                    <p>This report contains confidential assessment data and should be handled accordingly. Unauthorised distribution is not permitted.</p>
+                </div>
+            </div>
+        </footer>
+    </section>
+
+</div>
+</body>
+</html>
